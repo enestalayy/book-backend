@@ -28,7 +28,7 @@ class PublisherController extends BaseController {
   }
   async getPublishers(req, res, next) {
     const [response, error] = await handleAsync(
-      this.service.query({ status: "approved" })
+      this.service.query({ "publisher.status": "approved" })
     );
     if (error) {
       res.status(httpStatus.INTERNAL_SERVER_ERROR).send(error);
@@ -68,31 +68,44 @@ class PublisherController extends BaseController {
   }
 
   async updatePublisher(req, res, next) {
-    console.log("req.body.name :>> ", req.body.name);
-    try {
-      let user = await this.service.findOneAndUpdate(
-        { "publisher._id": req.params.publisher_id },
+    const [publisherExist, publisherError] = await handleAsync(
+      this.service.findOne({
+        "publisher.name": req.body.name,
+      })
+    );
+    if (publisherExist) {
+      return res
+        .status(httpStatus.CONFLICT)
+        .send({ message: "Publisher already exist" });
+    }
+    const [response, error] = await handleAsync(
+      this.service.findOneAndUpdate(
+        { "publisher._id": req.params.id },
         {
           $set: {
-            "publisher.name": req.body.name, // Nested field'ı güncellemek için dot notation
+            "publisher.name": req.body.name,
           },
         }
-      );
-      if (!user)
-        return res
-          .status(httpStatus.NOT_FOUND)
-          .send(new APIError("Publisher is not found", httpStatus.NOT_FOUND));
-      res.status(httpStatus.OK).send(user);
-    } catch (e) {
-      res.status(httpStatus.INTERNAL_SERVER_ERROR).send(e?.message);
-      next(e);
+      )
+    );
+
+    if (error || publisherError) {
+      res
+        .status(httpStatus.INTERNAL_SERVER_ERROR)
+        .send(error || publisherError);
     }
+    if (!response) {
+      return res
+        .status(httpStatus.NOT_FOUND)
+        .send(new APIError("User is not found", httpStatus.NOT_FOUND));
+    }
+    res.status(httpStatus.OK).send(response);
   }
+
   async updatePublisherStatus(req, res, next) {
-    console.log("ÇALIŞTIM");
     try {
       let user = await this.service.findOneAndUpdate(
-        { "publisher._id": req.params.publisher_id },
+        { "publisher._id": req.params.id },
         {
           $set: {
             "publisher.status": req.body.status, // Nested field'ı güncellemek için dot notation

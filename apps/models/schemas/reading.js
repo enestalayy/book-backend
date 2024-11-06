@@ -9,7 +9,7 @@ const ReadingSchema = new Schema(
       required: true,
     },
     current_page: {
-      type: Number,
+      type: String,
       required: true,
     },
   },

@@ -14,6 +14,7 @@ class UserController extends BaseController {
     this.login = this.login.bind(this);
     this.changePassword = this.changePassword.bind(this);
     this.resetPassword = this.resetPassword.bind(this);
+    this.readBook = this.readBook.bind(this);
   }
 
   async signup(req, res, next) {
@@ -25,6 +26,20 @@ class UserController extends BaseController {
       return handleError(error, next);
     }
 
+    res.status(httpStatus.CREATED).send(response);
+  }
+
+  async readBook(req, res) {
+    const [response, error] = await handleAsync(
+      this.service.update(req.user?._id, {
+        $push: {
+          readings: req.body,
+        },
+      })
+    );
+    if (error) {
+      res.status(httpStatus.INTERNAL_SERVER_ERROR).send(error);
+    }
     res.status(httpStatus.CREATED).send(response);
   }
 

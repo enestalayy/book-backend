@@ -1,10 +1,9 @@
 const { default: httpStatus } = require("http-status");
-const Book = require("@/models/book");
+const Comment = require("@/models/comment");
 const BaseService = require("~/services/Base");
 const APIError = require("~/errors/ApiError");
-const BookModel = require("../models/book");
 
-class BookService extends BaseService {
+class CommentService extends BaseService {
   // async createBook(userId) {
   //   try {
   //     const user = new BookModel({
@@ -18,4 +17,4 @@ class BookService extends BaseService {
   // }
 }
 
-module.exports = new BookService(Book);
+module.exports = new CommentService(Comment);

@@ -76,6 +76,6 @@ const UserSchema = new Schema(
   { timestamps: true }
 );
 
-UserSchema.index({ publisher: 1 });
+UserSchema.index({ publisher: 1, "readings.book_id": 1 });
 
 module.exports = mongoose.model("User", UserSchema);

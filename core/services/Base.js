@@ -42,6 +42,23 @@ class BaseService {
   async findBy(property, value) {
     return this.model.find({ [property]: value });
   }
+
+  async paginate(condition, query) {
+    console.log("condition :>> ", condition);
+    console.log("query :>> ", query);
+    const sort = query.sort
+      ? {
+          [query?.sort]: query?.sort.startsWith("-") ? -1 : +1,
+        }
+      : { createdAt: -1 };
+    const skip = query.skip ? (query?.page - 1) * query?.limit : 0;
+    return this.model
+      .find(condition)
+      .sort(sort)
+      .skip(skip)
+      .limit(Math.min(query.limit || 10, 20))
+      .lean();
+  }
 }
 
 module.exports = BaseService;

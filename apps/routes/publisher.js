@@ -1,13 +1,19 @@
 const router = require("express").Router();
 const validate = require("~/middlewares/validate");
+const validateParams = require("~/middlewares/validateParams");
 const authenticate = require("~/middlewares/auth");
 const isAdmin = require("~/middlewares/isAdmin");
-const schemas = require("@/validations/Publisher");
+const schemas = require("@/validations/publisher");
 const PublisherController = require("@/controllers/Publisher");
 
 // GET Publisher
 // Get one Publisher by id
-router.route("/:id").get(PublisherController.getPublishersById);
+router
+  .route("/:id")
+  .get(
+    validateParams(schemas.idValidation),
+    PublisherController.getPublishersById
+  );
 // Get approved Publishers
 router.get("/", PublisherController.getPublishers);
 
@@ -22,18 +28,19 @@ router
 
 // UPDATE Publisher
 router
-  .route("/:publisher_id")
+  .route("/:id")
   .patch(
     authenticate,
+    validateParams(schemas.idValidation),
     validate(schemas.updateValidation),
     PublisherController.updatePublisher
   );
 router
-  .route("/status/:publisher_id")
+  .route("/status/:id")
   .patch(
     authenticate,
     isAdmin,
-    validate(schemas.updateValidation),
+    validate(schemas.updateStatusValidation),
     PublisherController.updatePublisherStatus
   );
 

@@ -6,11 +6,17 @@ const app = express();
 config(app);
 
 // --- ROUTES ----
-const { UserRoutes, BookRoutes, PublisherRoutes } = require("@/routes");
+const {
+  UserRoutes,
+  BookRoutes,
+  PublisherRoutes,
+  CommentRoutes,
+} = require("@/routes");
 // app.use('/', router)
 app.use("/users", UserRoutes);
 app.use("/books", BookRoutes);
 app.use("/publishers", PublisherRoutes);
+app.use("/comments", CommentRoutes);
 
 app.use((req, res, next) => {
   const error = new Error("Page is not found");

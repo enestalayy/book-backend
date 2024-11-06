@@ -16,6 +16,7 @@ class BaseController {
   load = async (req, res, next) => {
     const [response, error] = await handleAsync(this.service.load());
     if (error) return handleError(error, next);
+    if (!response) res.status(httpStatus.NOT_FOUND).send("Not Found!");
     res.status(httpStatus.OK).send(response);
   };
 
@@ -24,6 +25,7 @@ class BaseController {
       this.service.update(req.params?.id || req.user?._id, req.body)
     );
     if (error) return handleError(error, next);
+    if (!response) res.status(httpStatus.NOT_FOUND).send("Not Found!");
     res.status(httpStatus.OK).send(response);
   };
 
@@ -32,6 +34,7 @@ class BaseController {
       this.service.removeBy("_id", req.params?.id)
     );
     if (error) return handleError(error, next);
+    if (!response) res.status(httpStatus.NOT_FOUND).send("Not Found!");
     res.status(httpStatus.OK).send(response);
   };
 
@@ -39,7 +42,9 @@ class BaseController {
     const [response, error] = await handleAsync(
       this.service.find(req.params?.id)
     );
+
     if (error) return handleError(error, next);
+    if (!response) res.status(httpStatus.NOT_FOUND).send("Not Found!");
     res.status(httpStatus.OK).send(response);
   };
 }

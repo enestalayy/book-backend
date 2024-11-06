@@ -1,6 +1,5 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
-const CommentSchema = require("./schemas/comment");
 const BookPublisherSchema = require("./schemas/book_publisher");
 
 // Book ana şeması
@@ -23,20 +22,24 @@ const BookSchema = new Schema(
         trim: true,
       },
     ],
-    publish: BookPublisherSchema,
+    publisher: BookPublisherSchema,
     publish_no: {
       type: Number,
-      default: 0,
+      default: 1,
       required: true,
     },
     total_page: {
       type: String,
       required: true,
     },
-    comments: [CommentSchema],
+    author_id: {
+      type: Schema.Types.ObjectId,
+      ref: "Comment",
+      required: true,
+    },
   },
   { timestamps: true }
 );
-BookSchema.index({ publish: 1 });
+BookSchema.index({ publisher: 1 });
 
 module.exports = mongoose.model("Book", BookSchema);
