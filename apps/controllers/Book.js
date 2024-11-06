@@ -19,6 +19,7 @@ class BookController extends BaseController {
     this.getBookByName = this.getBookByName.bind(this);
     this.updateBook = this.updateBook.bind(this);
     this.updateBookStatus = this.updateBookStatus.bind(this);
+    this.addReader = this.addReader.bind(this);
     this.deleteBook = this.deleteBook.bind(this);
   }
 
@@ -197,6 +198,23 @@ class BookController extends BaseController {
 
     res.status(httpStatus.OK).send(response);
   }
+
+  // ADD READER
+  async addReader(req, res) {
+    const [response, error] = await handleAsync(
+      this.service.update(req.params.id, { $push: { readers: req.user._id } })
+    );
+    if (error) {
+      res
+        .status(httpStatus.INTERNAL_SERVER_ERROR)
+        .send({ message: "Server is not responding" });
+    }
+    if (!response) {
+      res.status(httpStatus.NOT_FOUND).send({ message: "Book is not found" });
+    }
+    res.status(httpStatus.OK).send(response);
+  }
+
   async deleteBook(req, res) {
     if (req.user?.writings[req.params.id]) {
       const [userResponse, userError] = await handleAsync(

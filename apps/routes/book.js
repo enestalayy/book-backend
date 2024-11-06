@@ -67,16 +67,15 @@ router
     validate(schemas.updateValidationByPublisher),
     BookController.updateBookStatus
   );
-// router
-//   .route("/login")
-//   .post(validate(schemas.loginValidation), BookController.login);
-// router
-//   .route("/change-password")
-//   .post(
-//     authenticate,
-//     validate(schemas.changePasswordValidation),
-//     BookController.changePassword
-//   );
+// ADD READER
+router
+  .route("/reader/:id")
+  .patch(
+    authenticate,
+    validateParams(schemas.idValidation),
+    BookController.addReader
+  );
+
 router
   .route("/:id")
   .delete(

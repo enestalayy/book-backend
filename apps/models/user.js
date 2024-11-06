@@ -1,7 +1,6 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 const PublisherSchema = require("./schemas/publisher");
-const ReadingSchema = require("./schemas/reading");
 
 // Reading alt şeması - kullanıcının okuduğu kitaplar için
 // const ReadingSchema = new Schema(
@@ -71,11 +70,10 @@ const UserSchema = new Schema(
         ref: "Book",
       },
     ],
-    readings: [ReadingSchema],
   },
   { timestamps: true }
 );
 
-UserSchema.index({ publisher: 1, "readings.book_id": 1 });
+UserSchema.index({ publisher: 1 });
 
 module.exports = mongoose.model("User", UserSchema);

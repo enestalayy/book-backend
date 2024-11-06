@@ -23,10 +23,6 @@ router.get("/", UserController.load);
 router
   .route("/")
   .post(validate(schemas.createValidation), UserController.signup);
-// READ BOOK
-router
-  .route("/read")
-  .post(validate(schemas.readValidation), UserController.readBook);
 
 router
   .route("/")
