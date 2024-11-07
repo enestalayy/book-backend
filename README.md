@@ -27,58 +27,125 @@ A comprehensive RESTful API built for a book publishing platform, featuring user
   - Comment management features
   - User-specific comment history
 
-## 📊 Database Schema
+# Database Schema Documentation
 
+## 📊 Database Schema Diagram
 ```mermaid
 erDiagram
-    USERS ||--o{ BOOKS : writes
-    USERS ||--o{ COMMENTS : creates
-    PUBLISHERS ||--o{ BOOKS : publishes
-    BOOKS ||--o{ COMMENTS : has
-    
-    USERS {
+    USER ||--o{ BOOK : writes
+    USER ||--o{ COMMENT : creates
+    BOOK ||--o{ COMMENT : has
+    BOOK }o--|| BOOK_PUBLISHER : has
+    USER ||--o{ BOOK : reads
+    USER ||--|| PUBLISHER : can_be
+    USER {
         ObjectId id
+        string first_name
+        string last_name
         string email
         string password
-        string firstName
-        string lastName
-        enum role
+        array writings
+        Publisher publisher
         date createdAt
         date updatedAt
     }
-
-    BOOKS {
+    BOOK {
         ObjectId id
+        ObjectId author_id
         string name
-        string description
-        ObjectId authorId
-        ObjectId publisherId
-        enum status
+        array types
+        BookPublisher publisher
+        number publish_no
+        string total_page
         array readers
-        date publishedAt
         date createdAt
         date updatedAt
     }
-
-    PUBLISHERS {
-        ObjectId id
+    BOOK_PUBLISHER {
+        ObjectId publisher_id
+        string publisher_name
+        enum status
+    }
+    PUBLISHER {
         string name
-        string description
         enum status
         date createdAt
         date updatedAt
     }
-
-    COMMENTS {
+    COMMENT {
         ObjectId id
-        ObjectId userId
-        ObjectId bookId
-        string content
-        number rating
+        ObjectId user_id
+        ObjectId book_id
+        string rating
+        string comment
         date createdAt
         date updatedAt
     }
 ```
+
+## Schema Details
+
+### Collections
+
+#### User Collection
+- Stores user information including personal details and relationships with books
+- Contains publisher information if the user is also a publisher
+- Tracks both written and read books
+
+#### Book Collection
+- Stores book information including metadata and relationships
+- Tracks readers and author information
+- Contains embedded publisher information
+
+#### Comment Collection
+- Stores user reviews and ratings for books
+- Links users with their book reviews
+
+### Publisher Status Enumeration
+The following status values are available for publishers:
+- `pending`: Awaiting approval
+- `approved`: Active publisher
+- `rejected`: Publisher application denied
+- `suspended`: Temporarily suspended publisher
+
+### Key Relationships
+
+1. **User - Publisher Relationship**
+   - Each user can optionally be associated with a publisher (publisher sub-schema)
+   - Publisher status is tracked through the status enum
+
+2. **User - Book Relationships**
+   - Authors: Users can write multiple books (tracked in writings array)
+   - Readers: Users can read multiple books (tracked in readers array)
+   - Bi-directional relationship allows for easy querying of both authored and read books
+
+3. **Book - BookPublisher Relationship**
+   - Each book has associated publisher information
+   - Implemented as an embedded document for efficient querying
+
+4. **Book - Comment Relationship**
+   - Books can have multiple comments/reviews
+   - Enables tracking of book ratings and user feedback
+
+5. **User - Comment Relationship**
+   - Users can create multiple comments
+   - Facilitates user review history tracking
+
+### Indexes
+The following indexes are implemented for optimal query performance:
+- `publisher` field in the User collection
+- `publisher` field in the Book collection
+
+### Data Model Features
+- Timestamp tracking (`createdAt`, `updatedAt`) for all major collections
+- Use of MongoDB ObjectIds for document relationships
+- Embedded documents for frequently accessed related data
+- Array fields for many-to-many relationships
+
+### Notes
+- All timestamps are stored in UTC
+- Book types are stored as an array to support multiple genres/categories
+- Publisher status changes are tracked with timestamps
 
 ## 🛠 Tech Stack
 
