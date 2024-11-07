@@ -2,6 +2,29 @@
 
 A comprehensive RESTful API built for a book publishing platform, featuring user roles (readers, authors, publishers), book management, and review systems. Built with Node.js and Express.js, following object-oriented principles and clean architecture practices.
 
+## 📋 Table of Contents
+- [Features](#-features)
+- [Database Schema Documentation](#database-schema-documentation)
+  - [Database Schema Diagram](#-database-schema-diagram)
+  - [Schema Details](#schema-details)
+    - [Collections](#collections)
+    - [Publisher Status Enumeration](#publisher-status-enumeration)
+    - [Key Relationships](#key-relationships)
+    - [Indexes](#indexes)
+    - [Data Model Features](#data-model-features)
+    - [Notes](#notes)
+- [Tech Stack](#-tech-stack)
+- [API Endpoints](#-api-endpoints)
+  - [Authentication & Users](#authentication--users)
+  - [Books](#books)
+  - [Publishers](#publishers)
+  - [Comments](#comments)
+- [Setup & Installation](#-setup--installation)
+- [Middleware Structure](#-middleware-structure)
+- [Validation](#-validation)
+- [Contributing](#-contributing)
+- [License](#-license)
+
 ## 📚 Features
 
 - **User Management**
