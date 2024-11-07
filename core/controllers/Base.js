@@ -1,6 +1,7 @@
 const { default: httpStatus } = require("http-status");
 const handleAsync = require("~/utils/handleAsync");
 const handleError = require("~/utils/handleError");
+const handleResponse = require("~/utils/handleResponse");
 
 class BaseController {
   constructor(service) {
@@ -10,14 +11,13 @@ class BaseController {
   create = async (req, res, next) => {
     const [response, error] = await handleAsync(this.service.insert(req.body));
     if (error) return handleError(error, next);
-    res.status(httpStatus.CREATED).send(response);
+    handleResponse(res, httpStatus.CREATED, response, "Created successfully!");
   };
 
   load = async (req, res, next) => {
     const [response, error] = await handleAsync(this.service.load());
     if (error) return handleError(error, next);
-    if (!response) res.status(httpStatus.NOT_FOUND).send("Not Found!");
-    res.status(httpStatus.OK).send(response);
+    handleResponse(res, httpStatus.OK, response, "Gotten successfully!");
   };
 
   update = async (req, res, next) => {
@@ -25,8 +25,7 @@ class BaseController {
       this.service.update(req.params?.id || req.user?._id, req.body)
     );
     if (error) return handleError(error, next);
-    if (!response) res.status(httpStatus.NOT_FOUND).send("Not Found!");
-    res.status(httpStatus.OK).send(response);
+    handleResponse(res, httpStatus.OK, response, "Updated successfully!");
   };
 
   delete = async (req, res, next) => {
@@ -34,8 +33,7 @@ class BaseController {
       this.service.removeBy("_id", req.params?.id)
     );
     if (error) return handleError(error, next);
-    if (!response) res.status(httpStatus.NOT_FOUND).send("Not Found!");
-    res.status(httpStatus.OK).send(response);
+    handleResponse(res, httpStatus.OK, response, "Deleted successfully!");
   };
 
   find = async (req, res, next) => {
@@ -44,8 +42,7 @@ class BaseController {
     );
 
     if (error) return handleError(error, next);
-    if (!response) res.status(httpStatus.NOT_FOUND).send("Not Found!");
-    res.status(httpStatus.OK).send(response);
+    handleResponse(res, httpStatus.OK, response, "Found successfully!");
   };
 }
 

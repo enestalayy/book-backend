@@ -3,6 +3,7 @@ const APIError = require("~/errors/ApiError");
 const { PublisherService } = require("@/services");
 const handleAsync = require("~/utils/handleAsync");
 const handleError = require("~/utils/handleError");
+const handleResponse = require("~/utils/handleResponse");
 const BaseController = require("~/controllers/Base");
 
 class PublisherController extends BaseController {
@@ -21,20 +22,31 @@ class PublisherController extends BaseController {
       this.service.findOne({ "publisher._id": req.params.id })
     );
     if (error) {
-      res.status(httpStatus.INTERNAL_SERVER_ERROR).send(error);
       return handleError(error, next);
     }
-    return res.status(httpStatus.OK).send(response);
+
+    handleResponse(
+      res,
+      httpStatus.OK,
+      response,
+      "Publishers are gotten successfully!"
+    );
   }
+
   async getPublishers(req, res, next) {
     const [response, error] = await handleAsync(
       this.service.query({ "publisher.status": "approved" })
     );
     if (error) {
-      res.status(httpStatus.INTERNAL_SERVER_ERROR).send(error);
       return handleError(error, next);
     }
-    return res.status(httpStatus.OK).send(response);
+
+    handleResponse(
+      res,
+      httpStatus.OK,
+      response,
+      "Publishers are gotten successfully!"
+    );
   }
 
   async createPublisher(req, res, next) {
@@ -44,8 +56,9 @@ class PublisherController extends BaseController {
       })
     );
     if (publisherExist) {
-      res.status(httpStatus.CONFLICT).send(error);
-      return handleError(publisherExist, next);
+      return res
+        .status(httpStatus.CONFLICT)
+        .send({ message: "Publisher name is exist" });
     }
     const [response, updateError] = await handleAsync(
       this.service.update(
@@ -59,12 +72,15 @@ class PublisherController extends BaseController {
     );
     const error = updateError || publisherError;
     if (error) {
-      console.log("error :>> ", error);
-      res.status(httpStatus.INTERNAL_SERVER_ERROR).send(error);
       return handleError(error, next);
     }
 
-    res.status(httpStatus.CREATED).send(response);
+    handleResponse(
+      res,
+      httpStatus.CREATED,
+      response,
+      "Publisher is created successfully!"
+    );
   }
 
   async updatePublisher(req, res, next) {
@@ -78,7 +94,7 @@ class PublisherController extends BaseController {
         .status(httpStatus.CONFLICT)
         .send({ message: "Publisher already exist" });
     }
-    const [response, error] = await handleAsync(
+    const [response, updateError] = await handleAsync(
       this.service.findOneAndUpdate(
         { "publisher._id": req.params.id },
         {
@@ -89,38 +105,40 @@ class PublisherController extends BaseController {
       )
     );
 
-    if (error || publisherError) {
-      res
-        .status(httpStatus.INTERNAL_SERVER_ERROR)
-        .send(error || publisherError);
+    const error = publisherError || updateError;
+    if (error) {
+      return handleError(error, next);
     }
-    if (!response) {
-      return res
-        .status(httpStatus.NOT_FOUND)
-        .send(new APIError("User is not found", httpStatus.NOT_FOUND));
-    }
-    res.status(httpStatus.OK).send(response);
+
+    handleResponse(
+      res,
+      httpStatus.OK,
+      response,
+      "Publisher is updated successfully!"
+    );
   }
 
   async updatePublisherStatus(req, res, next) {
-    try {
-      let user = await this.service.findOneAndUpdate(
+    const [response, error] = await handleAsync(
+      this.service.findOneAndUpdate(
         { "publisher._id": req.params.id },
         {
           $set: {
             "publisher.status": req.body.status, // Nested field'ı güncellemek için dot notation
           },
         }
-      );
-      if (!user)
-        return res
-          .status(httpStatus.NOT_FOUND)
-          .send(new APIError("User is not found", httpStatus.NOT_FOUND));
-      res.status(httpStatus.OK).send(user);
-    } catch (e) {
-      res.status(httpStatus.INTERNAL_SERVER_ERROR).send(e?.message);
-      next(e);
+      )
+    );
+    if (error) {
+      return handleError(error, next);
     }
+
+    handleResponse(
+      res,
+      httpStatus.OK,
+      response,
+      "Publishers status is updated successfully!"
+    );
   }
 }
 

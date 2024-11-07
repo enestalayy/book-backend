@@ -3,6 +3,7 @@ const APIError = require("~/errors/ApiError");
 const { UserService } = require("@/services");
 const handleAsync = require("~/utils/handleAsync");
 const handleError = require("~/utils/handleError");
+const handleResponse = require("~/utils/handleResponse");
 const BaseController = require("~/controllers/Base");
 const { passwordToHash, verifyPassword } = require("~/utils/auth");
 
@@ -20,12 +21,15 @@ class UserController extends BaseController {
     req.body.password = await passwordToHash(req.body.password);
     const [response, error] = await handleAsync(this.service.insert(req.body));
     if (error) {
-      console.log("error :>> ", error);
-      res.status(httpStatus.INTERNAL_SERVER_ERROR).send(error);
       return handleError(error, next);
     }
 
-    res.status(httpStatus.CREATED).send(response);
+    handleResponse(
+      res,
+      httpStatus.CREATED,
+      response,
+      "User is created successfully!"
+    );
   }
 
   async login(req, res, next) {
@@ -44,7 +48,6 @@ class UserController extends BaseController {
   }
 
   async changePassword(req, res) {
-    console.log("req :>> ", req);
     req.body.password = await passwordToHash(req.body.password);
     await this.service
       .update({ _id: req.user?._id }, req.body)

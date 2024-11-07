@@ -44,8 +44,6 @@ class BaseService {
   }
 
   async paginate(condition, query) {
-    console.log("condition :>> ", condition);
-    console.log("query :>> ", query);
     const sort = query.sort
       ? {
           [query?.sort]: query?.sort.startsWith("-") ? -1 : +1,

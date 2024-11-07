@@ -23,9 +23,22 @@ app.use("/publishers", PublisherRoutes);
 app.use("/comments", CommentRoutes);
 
 app.use((req, res, next) => {
-  const error = new Error("Page is not found");
-  error.status = 404;
+  const error = new Error("Page not found");
+  error.statusCode = 404;
   next(error);
+});
+
+// MAIN ERROR HANDLING
+app.use((err, req, res, next) => {
+  const statusCode = err.statusCode || 500;
+  const message = err.message || "Internal Server Error";
+
+  res.status(statusCode).json({
+    code: statusCode,
+    status: false,
+    result: null,
+    message: message,
+  });
 });
 
 app.listen(PORT, () => {

@@ -2,6 +2,7 @@ const { default: httpStatus } = require("http-status");
 const { CommentService } = require("@/services");
 const handleAsync = require("~/utils/handleAsync");
 const handleError = require("~/utils/handleError");
+const handleResponse = require("~/utils/handleResponse");
 const BaseController = require("~/controllers/Base");
 
 class CommentController extends BaseController {
@@ -21,11 +22,15 @@ class CommentController extends BaseController {
       })
     );
     if (error) {
-      res.status(httpStatus.INTERNAL_SERVER_ERROR).send(error);
       return handleError(error, next);
     }
 
-    res.status(httpStatus.CREATED).send(response);
+    handleResponse(
+      res,
+      httpStatus.CREATED,
+      response,
+      "Comment is created successfully!"
+    );
   }
 
   // GET COMMENTS
@@ -34,9 +39,15 @@ class CommentController extends BaseController {
       this.service.paginate({ book_id: req.params.id }, req.query)
     );
     if (error) {
-      return res.status(httpStatus.INTERNAL_SERVER_ERROR).send(error);
+      return handleError(error, next);
     }
-    res.status(httpStatus.OK).send(response);
+
+    handleResponse(
+      res,
+      httpStatus.OK,
+      response,
+      "Comments are gotten successfully!"
+    );
   }
 }
 
