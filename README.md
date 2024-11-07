@@ -1,81 +1,156 @@
 # Book Publisher API
 
-A robust RESTful API built for managing books and authors, featuring comprehensive CRUD operations, authentication, and organized code structure. This project is designed with object-oriented principles focusing on modularity, maintainability, and clean code practices.
+A comprehensive RESTful API built for a book publishing platform, featuring user roles (readers, authors, publishers), book management, and review systems. Built with Node.js and Express.js, following object-oriented principles and clean architecture practices.
 
 ## 📚 Features
 
-- **Authentication & Authorization**
-  - Secure JWT-based authentication
-  - Role-based access control for different user types
-  - Protected routes and endpoints
+- **User Management**
+  - Role-based authentication (Readers, Authors, Publishers, Admin)
+  - JWT-based authentication
+  - Password change functionality
+  - Profile management
 
 - **Book Management**
   - Create, read, update, and delete books
-  - Search and filter books by various parameters
-  - Manage book metadata (title, ISBN, publication date, etc.)
-  - Associate books with authors
+  - Book status management (Draft, Published, etc.)
+  - Search books by name
+  - Pagination support
+  - Reader tracking system
 
-- **Author Management**
-  - Comprehensive author profile management
-  - Track author's published works
-  - Author biography and contact information
+- **Publisher Features**
+  - Publisher approval system
+  - Publisher-specific book listings
+  - Status management for publications
 
-## 🏗 Architecture
+- **Comment System**
+  - Book review and rating system
+  - Comment management features
+  - User-specific comment history
 
-The application follows a clean, layered architecture:
+## 📊 Database Schema
 
+```mermaid
+erDiagram
+    USERS ||--o{ BOOKS : writes
+    USERS ||--o{ COMMENTS : creates
+    PUBLISHERS ||--o{ BOOKS : publishes
+    BOOKS ||--o{ COMMENTS : has
+    
+    USERS {
+        ObjectId id
+        string email
+        string password
+        string firstName
+        string lastName
+        enum role
+        date createdAt
+        date updatedAt
+    }
+
+    BOOKS {
+        ObjectId id
+        string name
+        string description
+        ObjectId authorId
+        ObjectId publisherId
+        enum status
+        array readers
+        date publishedAt
+        date createdAt
+        date updatedAt
+    }
+
+    PUBLISHERS {
+        ObjectId id
+        string name
+        string description
+        enum status
+        date createdAt
+        date updatedAt
+    }
+
+    COMMENTS {
+        ObjectId id
+        ObjectId userId
+        ObjectId bookId
+        string content
+        number rating
+        date createdAt
+        date updatedAt
+    }
 ```
-Route → Controller → Service → Database
-```
 
-- **Routes**: Define API endpoints and connect to controllers
-- **Controllers**: Handle request/response logic and connect to services
-- **Services**: Contain business logic and database operations
-- **Models**: Define data schemas and relationships
-
-## 💻 Technologies
+## 🛠 Tech Stack
 
 - **Core**
   - Node.js
-  - Express.js
-  - MongoDB with Mongoose
-  - JWT for authentication
+  - Express.js (^4.21.1)
+  - MongoDB with Mongoose (^8.8.0)
+  - JWT for authentication (^9.0.2)
 
-- **Code Quality**
-  - ESLint for code linting
-  - Prettier for code formatting
-  - Winston for logging
-  - Helmet for security headers
+- **Validation & Security**
+  - Joi for validation (^17.13.3)
+  - Bcrypt for password hashing (^5.1.1)
+  - Helmet for security headers (^8.0.0)
+  - CORS support (^2.8.5)
 
-- **Development**
-  - Docker support
-  - PM2 for process management
-  - Compression for response optimization
+- **Code Quality & Utils**
+  - ESLint for linting (^9.14.0)
+  - Prettier for formatting (^3.3.3)
+  - Winston for logging (^3.16.0)
+  - Module aliases for clean imports
+  - HTTP-Status for standard status codes
+
+- **Development & Deployment**
+  - PM2 for process management (^5.4.2)
+  - Compression middleware
+  - Environment variable support (dotenv)
 
 ## 🚀 API Endpoints
 
-### Authentication
+### Authentication & Users
 ```
-POST /api/auth/register - Register new user
-POST /api/auth/login    - Login user
+POST   /users/login           - User login
+POST   /users                 - User registration
+PATCH  /users                 - Update user profile
+POST   /users/change-password - Change password
+GET    /users/:id            - Get user details
+DELETE /users/:id            - Delete user
 ```
 
 ### Books
 ```
-GET    /api/books       - Get all books
-GET    /api/books/:id   - Get specific book
-POST   /api/books       - Create new book
-PATCH  /api/books/:id   - Update book
-DELETE /api/books/:id   - Delete book
+GET    /books                 - Get published books (with pagination)
+GET    /books/search         - Search books by name
+GET    /books/profile        - Get author's books
+GET    /books/author/:id     - Get published books by author
+GET    /books/publisher      - Get publisher's books
+GET    /books/publisher/:id  - Get published books by publisher
+GET    /books/:id           - Get specific book
+POST   /books                - Create new book
+PATCH  /books/:id           - Update book
+PATCH  /books/status/:id    - Update book status
+PATCH  /books/reader/:id    - Add reader to book
+DELETE /books/:id           - Delete book
 ```
 
-### Authors
+### Publishers
 ```
-GET    /api/authors       - Get all authors
-GET    /api/authors/:id   - Get specific author
-POST   /api/authors       - Create new author
-PATCH  /api/authors/:id   - Update author
-DELETE /api/authors/:id   - Delete author
+GET    /publishers           - Get approved publishers
+GET    /publishers/:id      - Get specific publisher
+POST   /publishers          - Create publisher
+PATCH  /publishers/:id      - Update publisher
+PATCH  /publishers/status/:id - Update publisher status
+DELETE /publishers/:id      - Delete publisher
+```
+
+### Comments
+```
+GET    /comments/:id        - Get specific comment
+GET    /comments/book/:id   - Get book comments
+POST   /comments           - Create comment
+PATCH  /comments/:id       - Update comment
+DELETE /comments/:id       - Delete comment
 ```
 
 ## 🛠 Setup & Installation
@@ -94,55 +169,51 @@ npm install
 3. Set up environment variables:
 ```bash
 cp .env.example .env
-# Edit .env with your configurations
+```
+
+Required environment variables:
+```
+PORT=8000
+MONGODB_URI=mongodb://localhost:27017/book-publisher
+JWT_SECRET=your-secret-key
 ```
 
 4. Start the development server:
 ```bash
-npm run dev
+npm start
 ```
 
-## 🐳 Docker Support
-
-Build and run with Docker:
-
+Or with PM2:
 ```bash
-docker build -t book-publisher-api .
-docker run -p 3000:3000 book-publisher-api
+pm2 start app.js
 ```
 
-## 🔨 Base Classes
+## 🔒 Middleware Structure
 
-### Base Service
-The project includes a Base Service class that implements common CRUD operations:
+The API uses several middleware layers for security and validation:
 
+- **authenticate**: Verifies JWT tokens and user sessions
+- **isAdmin**: Checks for administrative privileges
+- **validate**: Validates request body using Joi schemas
+- **validateParams**: Validates URL parameters
+- **error handling**: Global error handling middleware
+
+## 🧪 Validation
+
+Request validation is handled using Joi schemas for:
+- User registration and updates
+- Book creation and modifications
+- Publisher management
+- Comment submissions
+
+Example validation schema:
 ```javascript
-class BookService extends BaseService {
-  constructor(model) {
-    super(model)
-  }
-  // Book-specific methods...
-}
-```
-
-### Base Controller
-Controllers extend from a Base Controller that handles standard operations:
-
-```javascript
-class BookController extends BaseController {
-  constructor(service) {
-    super(service)
-  }
-  // Book-specific controller methods...
-}
-```
-
-## 📝 Environment Variables
-
-```
-PORT=3000
-MONGODB_URI=mongodb://localhost:27017/book-publisher
-JWT_SECRET=your-secret-key
+const createValidation = Joi.object({
+  email: Joi.string().required().email(),
+  password: Joi.string().required().min(8),
+  firstName: Joi.string().required().min(2),
+  lastName: Joi.string().required().min(2)
+});
 ```
 
 ## 👥 Contributing
