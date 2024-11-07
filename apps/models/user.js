@@ -74,6 +74,4 @@ const UserSchema = new Schema(
   { timestamps: true }
 );
 
-UserSchema.index({ publisher: 1 });
-
 module.exports = mongoose.model("User", UserSchema);
